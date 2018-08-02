@@ -6,7 +6,13 @@
 
   <groupId>com.keruyun</groupId>
   <artifactId>tellit</artifactId>
+  <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
+  <modules>
+    <module>tellit-net</module>
+    <module>tellit-store</module>
+    <module>tellit-common</module>
+  </modules>
 
   <name>tellit</name>
   <!-- FIXME change it to the project's website -->
@@ -14,8 +20,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <dependencies>
