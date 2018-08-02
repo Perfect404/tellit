@@ -22,6 +22,8 @@ public class ChannelContext {
 
     private ByteBuffer sendBuf;
 
+    private int x=0;
+
     private byte[] headbytes = new byte[4];
 
     public ChannelContext(int size,SocketChannel sc){
@@ -41,8 +43,8 @@ public class ChannelContext {
                 if(bodyLength<=temp.remaining()){
                     byte[] data = new byte[bodyLength];
                     temp.get(data);
-
-                    System.out.println(new String(data,"UTF-8"));
+                    x++;
+                    System.out.println(new String(data,"UTF-8")+" "+x);
                     rcvBuf = temp;
                     rcvBuf.compact();
                     return data;
@@ -57,6 +59,7 @@ public class ChannelContext {
          }else if(num<0){
              key.channel();
              sc.close();
+             System.out.println(sc.hashCode()+"关闭");
          }
         return null;
     }
