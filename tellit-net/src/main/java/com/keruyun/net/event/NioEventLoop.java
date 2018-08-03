@@ -42,7 +42,7 @@ public class NioEventLoop implements EventLoop {
                 try {
                     SocketChannel socketChannel = ssc.accept();
                     socketChannel.configureBlocking(false);
-                    socketChannel.register(selector,SelectionKey.OP_READ,new ChannelContext(1024,socketChannel));
+                    socketChannel.register(selector,SelectionKey.OP_READ,new ChannelContext(10240,socketChannel));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -51,12 +51,12 @@ public class NetServerBootstrap {
             Iterator<SelectionKey> keyIterator = selectionKeySet.iterator();
             while (keyIterator.hasNext()){
                 SelectionKey key = keyIterator.next();
-                keyIterator.remove();
                 if(!Objects.isNull(eventLoop)){
                     eventLoop.submmit(key);
                 }else {
                     throw  new RuntimeException("eventLoop is Null");
                 }
+                keyIterator.remove();
 
             }
             if(shutdown){

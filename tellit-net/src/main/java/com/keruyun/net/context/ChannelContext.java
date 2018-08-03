@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Description:
@@ -22,7 +23,7 @@ public class ChannelContext {
 
     private ByteBuffer sendBuf;
 
-    private int x=0;
+    private AtomicInteger BBBB=new AtomicInteger(0);
 
     private byte[] headbytes = new byte[4];
 
@@ -35,27 +36,33 @@ public class ChannelContext {
     public byte[] readBytes(SelectionKey key) throws IOException {
          int num = sc.read(rcvBuf);
          if(num>0){
-             ByteBuffer temp = rcvBuf.duplicate();
-             temp.flip();
-             if(temp.remaining()>=4){
-                temp.get(headbytes);
-                int bodyLength= DataConversion.bytesToInt(headbytes,0);
-                if(bodyLength<=temp.remaining()){
-                    byte[] data = new byte[bodyLength];
-                    temp.get(data);
-                    x++;
-                    System.out.println(new String(data,"UTF-8")+" "+x);
-                    rcvBuf = temp;
-                    rcvBuf.compact();
-                    return data;
-                }else if(bodyLength>rcvBuf.capacity()-4){
+             while (true) {
+                 ByteBuffer temp = rcvBuf.duplicate();
+                 temp.flip();
+                 if(temp.remaining()>=4) {
+                     temp.get(headbytes);
+                     int bodyLength = DataConversion.bytesToInt(headbytes, 0);
+                     if (bodyLength <= temp.remaining()) {
+                         byte[] data = new byte[bodyLength];
+                         temp.get(data);
+                         rcvBuf = temp;
+                         rcvBuf.compact();
+                     } else if (bodyLength > rcvBuf.capacity() - 4) {
+                         System.out.println("啊啊啊啊");
+                         break;
+                     }else if(bodyLength>temp.remaining()){
+                         System.out.println("下一次读取 不够数据");
+                         break;
+                     }
 
-                }
-             }else {
-                 System.out.println("长度不够");
+                 }else {
+                     break;
+                 }
              }
+
          }else if(num==0){
              // TODO: 2018/8/2 正常现象
+             System.out.println("正常现象");
          }else if(num<0){
              key.channel();
              sc.close();
