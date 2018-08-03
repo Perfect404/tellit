@@ -37,25 +37,29 @@ public class ChannelContext {
          int num = sc.read(rcvBuf);
          if(num>0){
              while (true) {
-                 ByteBuffer temp = rcvBuf.duplicate();
-                 temp.flip();
-                 if(temp.remaining()>=4) {
-                     temp.get(headbytes);
+                 rcvBuf.flip();
+                 if(rcvBuf.remaining()>=4) {
+                     rcvBuf.mark();
+                     rcvBuf.get(headbytes);
                      int bodyLength = DataConversion.bytesToInt(headbytes, 0);
-                     if (bodyLength <= temp.remaining()) {
+                     if (bodyLength <= rcvBuf.remaining()) {
                          byte[] data = new byte[bodyLength];
-                         temp.get(data);
-                         rcvBuf = temp;
+                         rcvBuf.get(data);
                          rcvBuf.compact();
+                         System.out.println(new String(data,"UTF-8"));
                      } else if (bodyLength > rcvBuf.capacity() - 4) {
+                         rcvBuf.reset();
+                         rcvBuf.compact();
                          System.out.println("啊啊啊啊");
                          break;
-                     }else if(bodyLength>temp.remaining()){
-                         System.out.println("下一次读取 不够数据");
+                     }else if(bodyLength>rcvBuf.remaining()){
+                         rcvBuf.reset();
+                         rcvBuf.compact();
                          break;
                      }
 
                  }else {
+                     rcvBuf.compact();
                      break;
                  }
              }
