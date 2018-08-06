@@ -1,5 +1,6 @@
 package com.keruyun.net.context;
 
+import com.keruyun.net.util.BufferUtil;
 import com.keruyun.net.util.DataConversion;
 
 import java.io.IOException;
@@ -48,9 +49,24 @@ public class ChannelContext {
                          rcvBuf.compact();
                          System.out.println(new String(data,"UTF-8"));
                      } else if (bodyLength > rcvBuf.capacity() - 4) {
+                         if(bodyLength>1024*1024*4){
+                             key.cancel();
+                             sc.close();
+                             System.out.println(sc.hashCode()+"关闭");
+                             throw new RuntimeException("header+body length > 4*1024*1024");
+                         }
                          rcvBuf.reset();
-                         rcvBuf.compact();
-                         System.out.println("啊啊啊啊");
+                         ByteBuffer temp = rcvBuf;
+                         if(temp.isDirect()){
+                             rcvBuf = ByteBuffer.allocateDirect(rcvBuf.capacity()*2);
+                         }else {
+                             rcvBuf = ByteBuffer.allocate(temp.capacity()*2);
+                         }
+                         rcvBuf.put(temp);
+                         if(temp.isDirect()){
+                             BufferUtil.clean(temp);
+                         }
+                         System.out.println("2倍扩容");
                          break;
                      }else if(bodyLength>rcvBuf.remaining()){
                          rcvBuf.reset();
