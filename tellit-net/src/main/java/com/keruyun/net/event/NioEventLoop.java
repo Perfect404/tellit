@@ -1,6 +1,8 @@
 package com.keruyun.net.event;
 
 import com.keruyun.net.context.ChannelContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeUnit;
  * Copyright © 2014-2017 keruyun Inc. All rights reserved.
  **/
 public class NioEventLoop implements EventLoop {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NioEventLoop.class);
 
     private Selector selector;
 

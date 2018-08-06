@@ -1,6 +1,8 @@
 package com.keruyun.net;
 
 import com.keruyun.net.event.EventLoop;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -19,6 +21,8 @@ import java.util.Set;
  * Copyright © 2014-2017 keruyun Inc. All rights reserved.
  **/
 public class NetServerBootstrap {
+
+    private static final Logger  LOGGER = LoggerFactory.getLogger(NetServerBootstrap.class);
 
     private Selector selector;
 
@@ -40,7 +44,7 @@ public class NetServerBootstrap {
         sc.configureBlocking(false);
         sc.bind(new InetSocketAddress(port),1024);
         sc.register(selector,SelectionKey.OP_ACCEPT);
-        System.out.println("port:" + port);
+        LOGGER.info("listener port:{} success !" + port);
     }
 
     public void start() throws IOException {

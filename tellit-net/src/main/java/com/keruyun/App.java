@@ -13,7 +13,6 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
         NetServerBootstrap serverBootstrap = new NetServerBootstrap(7878);
         serverBootstrap.wrokerEventLoop(new NioEventLoop(5,10));
         try {

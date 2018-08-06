@@ -2,6 +2,8 @@ package com.keruyun.net.context;
 
 import com.keruyun.net.util.BufferUtil;
 import com.keruyun.net.util.DataConversion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -17,6 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Copyright © 2014-2017 keruyun Inc. All rights reserved.
  **/
 public class ChannelContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelContext.class);
 
     private SocketChannel sc;
 
@@ -52,7 +56,7 @@ public class ChannelContext {
                          if(bodyLength>1024*1024*4){
                              key.cancel();
                              sc.close();
-                             System.out.println(sc.hashCode()+"关闭");
+                             LOGGER.info(sc.hashCode()+"关闭");
                              throw new RuntimeException("header+body length > 4*1024*1024");
                          }
                          rcvBuf.reset();
@@ -66,7 +70,7 @@ public class ChannelContext {
                          if(temp.isDirect()){
                              BufferUtil.clean(temp);
                          }
-                         System.out.println("2倍扩容");
+                         LOGGER.info("2倍扩容");
                          break;
                      }else if(bodyLength>rcvBuf.remaining()){
                          rcvBuf.reset();
@@ -82,11 +86,11 @@ public class ChannelContext {
 
          }else if(num==0){
              // TODO: 2018/8/2 正常现象
-             System.out.println("正常现象");
+             LOGGER.info("正常现象");
          }else if(num<0){
              key.channel();
              sc.close();
-             System.out.println(sc.hashCode()+"关闭");
+             LOGGER.info(sc.hashCode()+"关闭");
          }
         return null;
     }
