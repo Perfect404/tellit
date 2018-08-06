@@ -57,7 +57,6 @@ public class NetServerBootstrap {
                     throw  new RuntimeException("eventLoop is Null");
                 }
                 keyIterator.remove();
-
             }
             if(shutdown){
                 break;
