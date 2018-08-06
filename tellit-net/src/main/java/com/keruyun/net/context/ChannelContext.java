@@ -28,8 +28,6 @@ public class ChannelContext {
 
     private ByteBuffer sendBuf;
 
-    private AtomicInteger BBBB=new AtomicInteger(0);
-
     private byte[] headbytes = new byte[4];
 
     public ChannelContext(int size,SocketChannel sc){
@@ -51,15 +49,16 @@ public class ChannelContext {
                          byte[] data = new byte[bodyLength];
                          rcvBuf.get(data);
                          rcvBuf.compact();
-                         System.out.println(new String(data,"UTF-8"));
+                         LOGGER.info(new String(data,"UTF-8"));
                      } else if (bodyLength > rcvBuf.capacity() - 4) {
                          if(bodyLength>1024*1024*4){
                              key.cancel();
                              sc.close();
-                             LOGGER.info(sc.hashCode()+"关闭");
+                             LOGGER.info("ID {} be closed",sc.hashCode());
                              throw new RuntimeException("header+body length > 4*1024*1024");
                          }
                          rcvBuf.reset();
+                         LOGGER.info("start scale ByteBuffer:{}",rcvBuf.capacity());
                          ByteBuffer temp = rcvBuf;
                          if(temp.isDirect()){
                              rcvBuf = ByteBuffer.allocateDirect(rcvBuf.capacity()*2);
@@ -70,7 +69,7 @@ public class ChannelContext {
                          if(temp.isDirect()){
                              BufferUtil.clean(temp);
                          }
-                         LOGGER.info("2倍扩容");
+                         LOGGER.info("scale ByteBuffer success:{}",rcvBuf.capacity());
                          break;
                      }else if(bodyLength>rcvBuf.remaining()){
                          rcvBuf.reset();
@@ -85,12 +84,11 @@ public class ChannelContext {
              }
 
          }else if(num==0){
-             // TODO: 2018/8/2 正常现象
-             LOGGER.info("正常现象");
+             LOGGER.info("read num:0");
          }else if(num<0){
              key.channel();
              sc.close();
-             LOGGER.info(sc.hashCode()+"关闭");
+             LOGGER.info("ID {} be closed",sc.hashCode());
          }
         return null;
     }
