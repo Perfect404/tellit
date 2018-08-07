@@ -1,6 +1,7 @@
 package com.keruyun.net.codec;
 
-import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.util.List;
 
 /**
  * Description:
@@ -11,8 +12,10 @@ import java.nio.ByteBuffer;
  **/
 public interface CodecHandle {
 
+
     byte[] encode();
 
-    Object decode(ByteBuffer buffer);
+
+    List<Object> decode(SelectionKey key) throws Exception;
 
 }

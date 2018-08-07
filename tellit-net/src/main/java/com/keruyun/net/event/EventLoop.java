@@ -2,6 +2,7 @@ package com.keruyun.net.event;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Description:
@@ -14,9 +15,10 @@ public interface EventLoop {
 
     void submmit(SelectionKey key);
 
-
     Selector selector();
 
     void setSelector(Selector selector);
+
+    AtomicInteger getTaskNum();
 
 }

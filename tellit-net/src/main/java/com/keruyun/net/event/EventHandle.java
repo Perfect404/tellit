@@ -13,8 +13,6 @@ public class EventHandle implements Runnable {
 
     private CodecHandle codecHandle;
 
-
-
     @Override
     public void run() {
 

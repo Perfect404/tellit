@@ -57,6 +57,10 @@ public class NetServerBootstrap {
                 SelectionKey key = keyIterator.next();
                 if(!Objects.isNull(eventLoop)){
                     eventLoop.submmit(key);
+                    for (;;){
+                        if(eventLoop.getTaskNum().get() == 0)
+                            break;
+                    }
                 }else {
                     throw  new RuntimeException("eventLoop is Null");
                 }

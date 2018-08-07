@@ -79,7 +79,7 @@ public class ClientServer implements Runnable  {
         ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
         long start = System.currentTimeMillis();
         for (int i=0;i<5000000;i++){
-            String req = "QUERY TIME ORDER "+i;
+            String req = "QUERY TIME ORDER B  "+i;
             byte[] shuzi = intToBytes(req.getBytes().length);
             while (byteBuffer.remaining()>=shuzi.length+req.getBytes().length) {
                 byteBuffer.put(shuzi);
@@ -92,6 +92,7 @@ public class ClientServer implements Runnable  {
                 break;
 
             }
+            Thread.sleep(20);
 
 
         }

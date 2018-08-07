@@ -1,5 +1,7 @@
 package com.keruyun.net.context;
 
+import com.keruyun.net.codec.CodecHandle;
+import com.keruyun.net.handle.MessageHandle;
 import com.keruyun.net.util.BufferUtil;
 import com.keruyun.net.util.DataConversion;
 import org.slf4j.Logger;
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -28,75 +31,67 @@ public class ChannelContext {
 
     private ByteBuffer sendBuf;
 
-    private byte[] headbytes = new byte[4];
+    private CodecHandle codecHandle;
+
+    private List<MessageHandle> messageHandleList;
 
     public ChannelContext(int size,SocketChannel sc){
-        rcvBuf = ByteBuffer.allocate(size);
-        sendBuf = ByteBuffer.allocate(size);
+        rcvBuf = ByteBuffer.allocateDirect(size);
+        sendBuf = ByteBuffer.allocateDirect(size);
         this.sc = sc;
     }
 
-    public byte[] readBytes(SelectionKey key) throws IOException {
-         int num = sc.read(rcvBuf);
-         if(num>0){
-             while (true) {
-                 rcvBuf.flip();
-                 if(rcvBuf.remaining()>=4) {
-                     rcvBuf.mark();
-                     rcvBuf.get(headbytes);
-                     int bodyLength = DataConversion.bytesToInt(headbytes, 0);
-                     if (bodyLength <= rcvBuf.remaining()) {
-                         byte[] data = new byte[bodyLength];
-                         rcvBuf.get(data);
-                         rcvBuf.compact();
-                         LOGGER.info(new String(data,"UTF-8"));
-                     } else if (bodyLength > rcvBuf.capacity() - 4) {
-                         if(bodyLength>1024*1024*4){
-                             key.cancel();
-                             sc.close();
-                             LOGGER.info("ID {} be closed",sc.hashCode());
-                             throw new RuntimeException("header+body length > 4*1024*1024");
-                         }
-                         rcvBuf.reset();
-                         LOGGER.info("start scale ByteBuffer:{}",rcvBuf.capacity());
-                         ByteBuffer temp = rcvBuf;
-                         if(temp.isDirect()){
-                             rcvBuf = ByteBuffer.allocateDirect(rcvBuf.capacity()*2);
-                         }else {
-                             rcvBuf = ByteBuffer.allocate(temp.capacity()*2);
-                         }
-                         rcvBuf.put(temp);
-                         if(temp.isDirect()){
-                             BufferUtil.clean(temp);
-                         }
-                         LOGGER.info("scale ByteBuffer success:{}",rcvBuf.capacity());
-                         break;
-                     }else if(bodyLength>rcvBuf.remaining()){
-                         rcvBuf.reset();
-                         rcvBuf.compact();
-                         break;
-                     }
-
-                 }else {
-                     rcvBuf.compact();
-                     break;
-                 }
-             }
-
-         }else if(num==0){
-             LOGGER.info("read num:0");
-         }else if(num<0){
-             key.channel();
-             sc.close();
-             LOGGER.info("ID {} be closed",sc.hashCode());
-         }
-        return null;
+    public void bindCodecHandle(CodecHandle codecHandle){
+        this.codecHandle = codecHandle;
     }
 
-    private void reset(){
-
-
-
+    public void bindMsgHandle(List<MessageHandle> messageHandleList){
+        this.messageHandleList = messageHandleList;
     }
 
+    public SocketChannel getSc() {
+        return sc;
+    }
+
+    public void setSc(SocketChannel sc) {
+        this.sc = sc;
+    }
+
+    public ByteBuffer getRcvBuf() {
+        return rcvBuf;
+    }
+
+    public void setRcvBuf(ByteBuffer rcvBuf) {
+        this.rcvBuf = rcvBuf;
+    }
+
+    public ByteBuffer getSendBuf() {
+        return sendBuf;
+    }
+
+    public void setSendBuf(ByteBuffer sendBuf) {
+        this.sendBuf = sendBuf;
+    }
+
+    public CodecHandle getCodecHandle() {
+        return codecHandle;
+    }
+
+    public void setCodecHandle(CodecHandle codecHandle) {
+        this.codecHandle = codecHandle;
+    }
+
+    public List<MessageHandle> getMessageHandleList() {
+        return messageHandleList;
+    }
+
+    public void setMessageHandleList(List<MessageHandle> messageHandleList) {
+        this.messageHandleList = messageHandleList;
+    }
+
+    public void close() throws IOException {
+        BufferUtil.clean(rcvBuf);
+        BufferUtil.clean(sendBuf);
+        sc.close();
+    }
 }
