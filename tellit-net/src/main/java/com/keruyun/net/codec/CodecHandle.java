@@ -13,8 +13,9 @@ import java.util.List;
 public interface CodecHandle {
 
 
-    byte[] encode();
+    byte[] encode(List<Object> list);
 
+    byte[] encode(Object o);
 
     List<Object> decode(SelectionKey key) throws Exception;
 

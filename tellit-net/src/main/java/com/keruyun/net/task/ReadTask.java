@@ -43,23 +43,23 @@ public class ReadTask implements Runnable {
                     LOGGER.info("正常流程");
                 }
             } catch (Exception e) {
-                key.cancel();
                 try {
                     cc.close();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+                key.cancel();
                 LOGGER.error(e.getMessage());
             }
 
         }else {
-            key.cancel();
             try {
                 LOGGER.error("key is not Readable close channel:{},clean buffer!",key.channel().hashCode());
                 cc.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            key.cancel();
         }
         taskNum.decrementAndGet();
 

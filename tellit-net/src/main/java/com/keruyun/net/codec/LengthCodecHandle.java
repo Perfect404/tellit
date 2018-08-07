@@ -30,7 +30,12 @@ public class LengthCodecHandle implements CodecHandle {
     private static final int MAX_BUFFER = 4 * 1024 * 1024;
 
     @Override
-    public byte[] encode() {
+    public byte[] encode(List<Object> list) {
+        return new byte[0];
+    }
+
+    @Override
+    public byte[] encode(Object o) {
         return new byte[0];
     }
 
@@ -55,11 +60,9 @@ public class LengthCodecHandle implements CodecHandle {
                         result.add(new String(data,"UTF-8"));
                     } else if (bodyLength > rcvBuf.capacity() - HEAD_LENGTH) {
                         if(bodyLength > MAX_BUFFER-HEAD_LENGTH){
-                            key.cancel();
-                            BufferUtil.clean(cc.getRcvBuf());
-                            BufferUtil.clean(cc.getSendBuf());
-                            sc.close();
                             LOGGER.info("ID {} be closed",sc.hashCode());
+                            cc.close();
+                            key.cancel();
                             throw new RuntimeException("header+body length > 4 * 1024 * 1024");
                         }
                         rcvBuf.reset();
@@ -91,10 +94,8 @@ public class LengthCodecHandle implements CodecHandle {
         }else if(num == 0){
             LOGGER.info("read num:0");
         }else if(num < 0){
+            cc.close();
             key.cancel();
-            BufferUtil.clean(cc.getRcvBuf());
-            BufferUtil.clean(cc.getSendBuf());
-            sc.close();
             LOGGER.info("ID {} be closed",sc.hashCode());
         }
         return result;

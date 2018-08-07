@@ -93,5 +93,31 @@ public class ChannelContext {
         BufferUtil.clean(rcvBuf);
         BufferUtil.clean(sendBuf);
         sc.close();
+        LOGGER.info("ID:{} close ");
+    }
+
+    public List<Object> read(SelectionKey key) throws Exception {
+        return codecHandle.decode(key);
+    }
+    public int write(List<Object> list) throws Exception {
+        int sendNum = 0;
+        byte[] data = codecHandle.encode(list);
+        sendBuf.put(data);
+        while (sendBuf.hasRemaining()){
+            sendNum =sendNum + sc.write(sendBuf);
+            sendBuf.compact();
+        }
+        return sendNum;
+    }
+    public int write(Object o) throws Exception {
+        int sendNum = 0;
+        byte[] data = codecHandle.encode(o);
+        sendBuf.put(data);
+        while (sendBuf.hasRemaining()){
+            sendNum =sendNum + sc.write(sendBuf);
+            sendBuf.compact();
+        }
+        return sendNum;
+
     }
 }
