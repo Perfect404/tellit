@@ -10,7 +10,7 @@ import java.io.IOException;
  * Hello world!
  *
  */
-public class App 
+public class NetServerBootstrapTest
 {
     public static void main( String[] args )
     {

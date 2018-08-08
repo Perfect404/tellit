@@ -46,7 +46,7 @@ public class NioEventLoop implements EventLoop {
 
     private List<MessageHandle> handleList = new ArrayList<>();
 
-    private int BUFFER_SIZE = 4 * 1024;
+    private int BUFFER_SIZE = 1024 * 1024;
 
     public NioEventLoop(int corePoolSize,int maxPoolSize) {
         threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maxPoolSize,

@@ -9,6 +9,7 @@ import java.io.IOException;
  * comments:
  * Copyright © 2014-2017 keruyun Inc. All rights reserved.
  **/
+@Deprecated
 public class CLientTest {
 
     public static void main(String[] args) {

@@ -19,4 +19,17 @@ public class BufferUtil {
         }
     }
 
+    public static ByteBuffer scale(ByteBuffer buffer,int dataSize){
+        int initSize = buffer.capacity();
+        while (dataSize > initSize){
+            initSize = dataSize * 2;
+        }
+        if(buffer.isDirect()){
+            BufferUtil.clean(buffer);
+            return ByteBuffer.allocateDirect(initSize);
+        }else {
+            return ByteBuffer.allocate(initSize);
+        }
+    }
+
 }
