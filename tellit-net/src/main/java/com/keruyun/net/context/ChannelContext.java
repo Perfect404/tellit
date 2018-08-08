@@ -35,9 +35,11 @@ public class ChannelContext {
 
     private List<MessageHandle> messageHandleList;
 
+    private int MAX_BUFFER_SIZE = 4 * 1024 * 1024;
+
     public ChannelContext(int size,SocketChannel sc){
-        rcvBuf = ByteBuffer.allocateDirect(size);
-        sendBuf = ByteBuffer.allocateDirect(size);
+        rcvBuf = ByteBuffer.allocate(size);
+        sendBuf = ByteBuffer.allocate(size);
         this.sc = sc;
     }
 
@@ -93,7 +95,7 @@ public class ChannelContext {
         BufferUtil.clean(rcvBuf);
         BufferUtil.clean(sendBuf);
         sc.close();
-        LOGGER.info("ID:{} close ");
+        LOGGER.info("ID:{} close ",sc.hashCode());
     }
 
     public List<Object> read(SelectionKey key) throws Exception {
@@ -103,20 +105,25 @@ public class ChannelContext {
         int sendNum = 0;
         byte[] data = codecHandle.encode(list);
         sendBuf.put(data);
+        sendBuf.flip();
         while (sendBuf.hasRemaining()){
             sendNum =sendNum + sc.write(sendBuf);
-            sendBuf.compact();
         }
+        sendBuf.compact();
         return sendNum;
     }
     public int write(Object o) throws Exception {
         int sendNum = 0;
         byte[] data = codecHandle.encode(o);
+        if(data.length > MAX_BUFFER_SIZE){
+            throw new RuntimeException("max_buffer_size is 4 * 1024 * 1024 ");
+        }
         sendBuf.put(data);
+        sendBuf.flip();
         while (sendBuf.hasRemaining()){
             sendNum =sendNum + sc.write(sendBuf);
-            sendBuf.compact();
         }
+        sendBuf.compact();
         return sendNum;
 
     }

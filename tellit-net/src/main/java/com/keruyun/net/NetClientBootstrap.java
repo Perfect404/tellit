@@ -33,7 +33,9 @@ public class NetClientBootstrap {
 
     private CodecHandle codecHandle;
 
-    private int BUFFER_SIZE = 1024;
+    private ChannelContext channelContext;
+
+    private int BUFFER_SIZE = 4 * 1024;
 
     public NetClientBootstrap(InetSocketAddress inetSocketAddress){
         this.inetSocketAddress = inetSocketAddress;
@@ -48,20 +50,15 @@ public class NetClientBootstrap {
     public NetClientBootstrap start() {
         try {
             if(sc.connect(inetSocketAddress)){
-                sc.register(selector,SelectionKey.OP_READ);
+                channelContext = new ChannelContext(BUFFER_SIZE,sc);
+                channelContext.bindCodecHandle(codecHandle);
+                sc.register(selector,SelectionKey.OP_READ,channelContext);
             }else {
                 sc.register(selector,SelectionKey.OP_CONNECT);
             }
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
-        }
-        if(selector!=null){
-            try {
-                selector.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
         return this;
     }
@@ -77,14 +74,15 @@ public class NetClientBootstrap {
                 SocketChannel socketChannel = (SocketChannel)key.channel();
                 if(key.isConnectable()){
                     if(sc.finishConnect()){
-                        ChannelContext channelContext = new ChannelContext(BUFFER_SIZE,socketChannel);
+                        channelContext = new ChannelContext(BUFFER_SIZE,socketChannel);
                         channelContext.bindCodecHandle(codecHandle);
                         sc.register(selector,SelectionKey.OP_READ,channelContext);
+                        channelContext.write("第一次来了");
                     }else {
                         System.exit(-1);
                     }
                 }else if(key.isReadable()){
-                    List<Object> resultList = codecHandle.decode(key);
+                    List<Object> resultList = channelContext.read(key);
                     return resultList;
                 }
             }
@@ -99,5 +97,9 @@ public class NetClientBootstrap {
 
     public SocketChannel getSc() {
         return sc;
+    }
+
+    public ChannelContext channelContext(){
+        return channelContext;
     }
 }

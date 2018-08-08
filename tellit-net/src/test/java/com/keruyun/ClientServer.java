@@ -92,7 +92,6 @@ public class ClientServer implements Runnable  {
                 break;
 
             }
-            Thread.sleep(20);
 
 
         }

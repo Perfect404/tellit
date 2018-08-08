@@ -15,19 +15,24 @@ import java.util.List;
  **/
 public class LengthFixMessageHandle implements MessageHandle {
 
+    private String msg = "和打完的娃大王大王大王大王大王大王大王大王擦擦撒上擦拭擦拭擦拭擦拭擦拭擦拭次 啊大王大王大王大王大王的娃大王大王大王大王大王娃大王大王大王大王大王的娃大王大王大王大大的娃娃的娃大王大王大王大王大王大王娃大王大王大王大王大王大王的娃打我打完的我呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复等我打完的娃大王大王大王大王大王大王大王大王擦擦撒上擦拭擦拭擦拭擦拭擦拭擦拭次 啊大王大王大王大王大王的娃大王大王大王大王大王娃大王大王大王大王大王的娃大王大王大王大大的娃娃的娃大王大王大王大王大王大王娃大王大王大王大王大王大王的娃打我打完的我呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜呜哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇哇反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复" +
+            "反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复反反复复";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LengthFixMessageHandle.class);
 
 
     @Override
-    public void handle(ChannelContext channelContext, Object msg) throws Exception {
+    public Object handle(ChannelContext channelContext, Object msg) throws Exception {
 
-        LOGGER.info((String) msg);
-
-
+        channelContext.write(msg);
+        return msg;
     }
 
     @Override
-    public void handleBatch(ChannelContext channelContext, List<Object> msgList) throws Exception {
+    public List<Object> handleBatch(ChannelContext channelContext, List<Object> msgList) throws Exception {
 
+
+
+        return msgList;
     }
 }

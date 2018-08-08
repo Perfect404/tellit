@@ -13,8 +13,20 @@ import java.util.List;
  **/
 public interface MessageHandle {
 
-    void handle(ChannelContext channelContext, Object msg) throws Exception;
+    /**
+     * handle the msg, you need throw the exception if there have any error
+     * @param channelContext
+     * @param msg
+     * @throws Exception
+     */
+    Object handle(ChannelContext channelContext, Object msg) throws Exception;
 
-    void handleBatch(ChannelContext channelContext, List<Object> msgList) throws Exception;
+    /**
+     * handleBatch the msgs, you need throw the exception if there have any error
+     * @param channelContext
+     * @param msgList
+     * @throws Exception
+     */
+    List<Object> handleBatch(ChannelContext channelContext, List<Object> msgList) throws Exception;
 
 }

@@ -36,7 +36,12 @@ public class LengthCodecHandle implements CodecHandle {
 
     @Override
     public byte[] encode(Object o) {
-        return new byte[0];
+        byte[] data =  ((String)o).getBytes();
+        byte[] length = DataConversion.intToBytes(data.length);
+        byte[] res =new byte[4+data.length];
+        System.arraycopy(length, 0, res, 0, length.length);
+        System.arraycopy(data, 0, res, length.length, data.length);
+        return res;
     }
 
     @Override
@@ -60,8 +65,8 @@ public class LengthCodecHandle implements CodecHandle {
                         result.add(new String(data,"UTF-8"));
                     } else if (bodyLength > rcvBuf.capacity() - HEAD_LENGTH) {
                         if(bodyLength > MAX_BUFFER-HEAD_LENGTH){
-                            LOGGER.info("ID {} be closed",sc.hashCode());
                             cc.close();
+                            key.attach(null);
                             key.cancel();
                             throw new RuntimeException("header+body length > 4 * 1024 * 1024");
                         }
@@ -69,15 +74,15 @@ public class LengthCodecHandle implements CodecHandle {
                         LOGGER.info("start scale ByteBuffer:{}",rcvBuf.capacity());
                         ByteBuffer temp = rcvBuf;
                         if(temp.isDirect()){
-                            rcvBuf = ByteBuffer.allocateDirect(rcvBuf.capacity()*2);
+                            cc.setRcvBuf(ByteBuffer.allocateDirect(temp.capacity()*2));
                         }else {
-                            rcvBuf = ByteBuffer.allocate(temp.capacity()*2);
+                            cc.setRcvBuf(ByteBuffer.allocate(temp.capacity()*2));
                         }
-                        rcvBuf.put(temp);
+                        cc.getRcvBuf().put(temp);
                         if(temp.isDirect()){
                             BufferUtil.clean(temp);
                         }
-                        LOGGER.info("scale ByteBuffer success:{}",rcvBuf.capacity());
+                        LOGGER.info("scale ByteBuffer success:{}",cc.getRcvBuf().capacity());
                         break;
                     }else if(bodyLength>rcvBuf.remaining()){
                         rcvBuf.reset();
@@ -92,11 +97,10 @@ public class LengthCodecHandle implements CodecHandle {
             }
 
         }else if(num == 0){
-            LOGGER.info("read num:0");
         }else if(num < 0){
             cc.close();
+            key.attach(null);
             key.cancel();
-            LOGGER.info("ID {} be closed",sc.hashCode());
         }
         return result;
     }

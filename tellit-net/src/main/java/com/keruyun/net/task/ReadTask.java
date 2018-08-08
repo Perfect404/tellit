@@ -1,6 +1,7 @@
 package com.keruyun.net.task;
 
 import com.keruyun.net.context.ChannelContext;
+import com.keruyun.net.handle.MessageHandle;
 import com.keruyun.net.util.BufferUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +33,21 @@ public class ReadTask implements Runnable {
 
     @Override
     public void run() {
-        ChannelContext cc =(ChannelContext) key.attachment();
+        ChannelContext cc = (ChannelContext) key.attachment();
         if(key.isReadable()){
             try {
-                List<Object> msgList= cc.getCodecHandle().decode(key);
+                List<Object> msgList = cc.read(key);
                 if(cc.getMessageHandleList() == null){
+                    LOGGER.error("there is no MessageHandle ");
                     for (Object o : msgList)
-                        LOGGER.info((String) o);
+                        LOGGER.error((String) o);
                 }else {
-                    LOGGER.info("正常流程");
+                    for (Object object : msgList) {
+                        Object o = object;
+                        for (MessageHandle messageHandle : cc.getMessageHandleList()) {
+                            o = messageHandle.handle(cc,o);
+                        }
+                    }
                 }
             } catch (Exception e) {
                 try {
@@ -48,8 +55,9 @@ public class ReadTask implements Runnable {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+                key.attach(null);
                 key.cancel();
-                LOGGER.error(e.getMessage());
+                LOGGER.error(e.getLocalizedMessage());
             }
 
         }else {
@@ -59,6 +67,7 @@ public class ReadTask implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            key.attach(null);
             key.cancel();
         }
         taskNum.decrementAndGet();

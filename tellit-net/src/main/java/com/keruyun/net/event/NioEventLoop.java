@@ -3,6 +3,7 @@ package com.keruyun.net.event;
 import com.keruyun.net.codec.CodecHandle;
 import com.keruyun.net.codec.LengthCodecHandle;
 import com.keruyun.net.context.ChannelContext;
+import com.keruyun.net.handle.MessageHandle;
 import com.keruyun.net.task.ReadTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,7 +44,9 @@ public class NioEventLoop implements EventLoop {
 
     private CodecHandle codecHandle = new LengthCodecHandle();
 
-    private int BUFFER_SIZE = 1024;
+    private List<MessageHandle> handleList = new ArrayList<>();
+
+    private int BUFFER_SIZE = 4 * 1024;
 
     public NioEventLoop(int corePoolSize,int maxPoolSize) {
         threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maxPoolSize,
@@ -58,6 +63,7 @@ public class NioEventLoop implements EventLoop {
                     socketChannel.configureBlocking(false);
                     ChannelContext channelContext = new ChannelContext(BUFFER_SIZE,socketChannel);
                     channelContext.bindCodecHandle(codecHandle);
+                    channelContext.setMessageHandleList(handleList);
                     socketChannel.register(selector,SelectionKey.OP_READ,channelContext);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -84,5 +90,9 @@ public class NioEventLoop implements EventLoop {
     @Override
     public AtomicInteger getTaskNum() {
         return taskNum;
+    }
+
+    public boolean addMessagehandle(MessageHandle messageHandle){
+        return handleList.add(messageHandle);
     }
 }
