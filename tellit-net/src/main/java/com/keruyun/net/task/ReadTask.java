@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -24,53 +25,62 @@ public class ReadTask implements Runnable {
 
     private SelectionKey key;
 
-    private AtomicInteger taskNum;
+    private CountDownLatch countDownLatch;
 
-    public ReadTask(SelectionKey key, AtomicInteger taskNum){
+    public ReadTask(SelectionKey key, CountDownLatch countDownLatch){
         this.key = key;
-        this.taskNum = taskNum;
+        this.countDownLatch = countDownLatch;
     }
 
     @Override
     public void run() {
-        ChannelContext cc = (ChannelContext) key.attachment();
-        if(key.isReadable()){
-            try {
-                List<Object> msgList = cc.read(key);
-                if(cc.getMessageHandleList() == null){
-                    LOGGER.error("there is no MessageHandle ");
-                    for (Object o : msgList)
-                        LOGGER.error((String) o);
-                }else {
-                    for (Object object : msgList) {
-                        Object o = object;
-                        for (MessageHandle messageHandle : cc.getMessageHandleList()) {
-                            o = messageHandle.handle(cc,o);
+        try {
+            ChannelContext cc = (ChannelContext) key.attachment();
+            if(key.isValid()) {
+                if (key.isReadable()) {
+                    try {
+                        List<Object> msgList = cc.read(key);
+                        if (cc.getMessageHandleList() == null) {
+                            LOGGER.error("there is no MessageHandle ");
+                            for (Object o : msgList)
+                                LOGGER.error((String) o);
+                        } else {
+                            for (Object object : msgList) {
+                                Object o = object;
+                                for (MessageHandle messageHandle : cc.getMessageHandleList()) {
+                                    o = messageHandle.handle(cc, o);
+                                }
+                            }
                         }
+                    } catch (Exception e) {
+                        try {
+                            cc.close();
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                        key.attach(null);
+                        key.cancel();
+                        LOGGER.error(e.getLocalizedMessage());
                     }
-                }
-            } catch (Exception e) {
-                try {
-                    cc.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                key.attach(null);
-                key.cancel();
-                LOGGER.error(e.getLocalizedMessage());
-            }
 
-        }else {
-            try {
-                LOGGER.error("key is not Readable close channel:{},clean buffer!",key.channel().hashCode());
-                cc.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                } else {
+                    try {
+                        LOGGER.error("key is not Readable close channel:{},clean buffer!", key.channel().hashCode());
+                        cc.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    key.attach(null);
+                    key.cancel();
+                }
             }
-            key.attach(null);
-            key.cancel();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            countDownLatch.countDown();
         }
-        taskNum.decrementAndGet();
+
+
 
     }
 }

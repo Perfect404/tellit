@@ -12,6 +12,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Description:
@@ -42,7 +44,7 @@ public class NetServerBootstrap {
         selector = Selector.open();
         sc = ServerSocketChannel.open();
         sc.configureBlocking(false);
-        sc.bind(new InetSocketAddress(port),1024);
+        sc.bind(new InetSocketAddress(port),2048);
         sc.register(selector,SelectionKey.OP_ACCEPT);
         LOGGER.info("listener port:{} success !" + port);
     }
@@ -53,18 +55,20 @@ public class NetServerBootstrap {
             selector.select();
             Set<SelectionKey> selectionKeySet = selector.selectedKeys();
             Iterator<SelectionKey> keyIterator = selectionKeySet.iterator();
+            CountDownLatch downLatch = new CountDownLatch(selectionKeySet.size());
             while (keyIterator.hasNext()){
                 SelectionKey key = keyIterator.next();
                 if(!Objects.isNull(eventLoop)){
-                    eventLoop.submmit(key);
-                    for (;;){
-                        if(eventLoop.getTaskNum().get() == 0)
-                            break;
-                    }
+                    eventLoop.submmit(key,downLatch);
                 }else {
                     throw  new RuntimeException("eventLoop is Null");
                 }
                 keyIterator.remove();
+            }
+            try {
+                downLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
             if(shutdown){
                 break;

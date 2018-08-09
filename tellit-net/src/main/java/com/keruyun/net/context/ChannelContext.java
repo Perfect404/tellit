@@ -118,7 +118,9 @@ public class ChannelContext {
         if(data.length > MAX_BUFFER_SIZE){
             throw new RuntimeException("max_buffer_size is 4 * 1024 * 1024 ");
         }
-        sendBuf = BufferUtil.scale(sendBuf,data.length);
+        if(data.length > sendBuf.remaining() || data.length > sendBuf.capacity()){
+            sendBuf = BufferUtil.scale(sendBuf,data.length);
+        }
         sendBuf.put(data);
         sendBuf.flip();
         while (sendBuf.hasRemaining()){

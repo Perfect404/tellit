@@ -2,6 +2,7 @@ package com.keruyun.net.event;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  **/
 public interface EventLoop {
 
-    void submmit(SelectionKey key);
+    void submmit(SelectionKey key, CountDownLatch countDownLatch);
 
     Selector selector();
 
