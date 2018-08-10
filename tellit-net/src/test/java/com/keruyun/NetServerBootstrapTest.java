@@ -15,7 +15,7 @@ public class NetServerBootstrapTest
     public static void main( String[] args )
     {
         NetServerBootstrap serverBootstrap = new NetServerBootstrap(7878);
-        NioEventLoop nioEventLoop = new NioEventLoop(5,20);
+        NioEventLoop nioEventLoop = new NioEventLoop(5,8);
         nioEventLoop.addMessagehandle(new LengthFixMessageHandle());
         serverBootstrap.wrokerEventLoop(nioEventLoop);
         try {
